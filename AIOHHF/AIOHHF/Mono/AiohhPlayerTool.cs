@@ -18,8 +18,10 @@ public class AiohhPlayerTool : PlayerTool
         fab.powerRelay = relay;
         battery = gameObject.GetComponent<HandHeldBatterySource>();
         storageContainer = gameObject.GetComponent<StorageContainer>();
+        pickupable = gameObject.GetComponent<Pickupable>();
         battery.connectedRelay = relay;
         relay.AddInboundPower(battery);
+        base.Awake();
     }
     public override bool OnRightHandDown()
     {
