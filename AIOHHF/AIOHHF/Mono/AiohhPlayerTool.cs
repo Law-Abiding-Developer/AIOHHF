@@ -4,16 +4,16 @@ using UnityEngine;
 
 namespace AIOHHF.Mono;
 
-public class HandHeldPlayerTool : PlayerTool
+public class AiohhPlayerTool : PlayerTool
 {
-    public HandHeldFabricator fab;
+    public AioHandHeldFabricator fab;
     public PowerRelay relay;
     public HandHeldBatterySource battery;
     public StorageContainer storageContainer;
     private double _counter = 0;
     public override void Awake()
     {
-        fab = gameObject.GetComponent<HandHeldFabricator>();
+        fab = gameObject.GetComponent<AioHandHeldFabricator>();
         relay = gameObject.GetComponent<PowerRelay>();
         fab.powerRelay = relay;
         battery = gameObject.GetComponent<HandHeldBatterySource>();

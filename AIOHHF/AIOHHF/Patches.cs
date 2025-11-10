@@ -26,7 +26,7 @@ public class uGUI_CraftingMenuPatches
             if (item.id.Equals(id)) isSuperTab = true;
         }
         //Check if is my fabricator, if so, cast.
-        if (__instance._client is not HandHeldFabricator instance) return;
+        if (__instance._client is not AioHandHeldFabricator instance) return;
         //Set the default case to false so long as is it a Super Tab so
         //that it filters everything but what the foreach loop finds
         if (isSuperTab) __result = false;
@@ -63,5 +63,27 @@ public class uGUI_CraftingMenuPatches
     public static void Open_Patches(uGUI_CraftingMenu __instance, ITreeActionReceiver receiver)
     {
         __instance._client = receiver;
+    }
+}
+
+[HarmonyPatch(typeof(GhostCrafter))]
+public class GhostCrafterPatches
+{
+    [HarmonyPatch(nameof(GhostCrafter.OnHandHover))]
+    [HarmonyPrefix]
+    public static bool OnHandHover_Patches(GhostCrafter __instance, GUIHand hand)
+    {
+        if (!__instance.gameObject.TryGetComponent<AiohhPlayerTool>(out var pt)) return true;
+        pt.pickupable.OnHandHover(hand);
+        return false;
+    }
+
+    [HarmonyPatch(nameof(GhostCrafter.OnHandClick))]
+    [HarmonyPrefix]
+    public static bool OnHandClick_Patches(GhostCrafter __instance, GUIHand hand)
+    {
+        if (!__instance.gameObject.TryGetComponent<AiohhPlayerTool>(out var pt)) return true;
+        pt.pickupable.OnHandClick(hand);
+        return false;
     }
 }

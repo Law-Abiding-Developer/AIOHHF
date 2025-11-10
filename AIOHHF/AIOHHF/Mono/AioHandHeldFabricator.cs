@@ -3,7 +3,7 @@ using AIOHHF.Items.Equipment;
 
 namespace AIOHHF.Mono;
 
-public class HandHeldFabricator : Fabricator
+public class AioHandHeldFabricator : Fabricator
 {
     
     /*public override void OnOpenedChanged(bool opened)

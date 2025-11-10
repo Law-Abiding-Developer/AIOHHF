@@ -59,14 +59,14 @@ public class AllInOneHandHeldFabricator
                 var fab = prefab.GetComponent<Fabricator>();
                 if (fab != null)
                 {
-                    var hhf = prefab.AddAndCopyComponent<HandHeldFabricator, Fabricator>();
+                    var hhf = prefab.AddAndCopyComponent<AioHandHeldFabricator, Fabricator>();
                     Object.Destroy(fab);
                 }
                 GameObject model = prefab.gameObject; 
                 model.transform.localScale = Vector3.one / 2f;
                 PostScaleValue = model.transform.localScale;
                 prefab.AddComponent<Pickupable>();
-                prefab.AddComponent<HandHeldPlayerTool>();
+                prefab.AddComponent<AiohhPlayerTool>();
                 prefab.AddComponent<Rigidbody>();
                 PrefabUtils.AddWorldForces(prefab, 5);
                 PrefabUtils.AddStorageContainer(prefab, "AIOHHFStorageContainer", "ALL IN ONE HAND HELD FABRICATOR", 2 ,2);
