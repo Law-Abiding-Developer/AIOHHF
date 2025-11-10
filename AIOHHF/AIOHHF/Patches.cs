@@ -66,7 +66,7 @@ public class uGUI_CraftingMenuPatches
     }
 }
 
-[HarmonyPatch(typeof(GhostCrafter))]
+/*[HarmonyPatch(typeof(GhostCrafter))]
 public class GhostCrafterPatches
 {
     [HarmonyPatch(nameof(GhostCrafter.OnHandHover))]
@@ -86,4 +86,4 @@ public class GhostCrafterPatches
         pt.pickupable.OnHandClick(hand);
         return false;
     }
-}
+}*/
