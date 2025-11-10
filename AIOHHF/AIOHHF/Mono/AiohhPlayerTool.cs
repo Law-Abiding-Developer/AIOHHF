@@ -21,6 +21,8 @@ public class AiohhPlayerTool : PlayerTool
         pickupable = gameObject.GetComponent<Pickupable>();
         battery.connectedRelay = relay;
         relay.AddInboundPower(battery);
+        ikAimLeftArm = true;
+        ikAimRightArm = true;
         base.Awake();
     }
     public override bool OnRightHandDown()
