@@ -65,6 +65,16 @@ public class AiohhPlayerTool : PlayerTool
         {
             fab.animator.SetBool(AnimatorHashID.open_fabricator, true);
         }
+
+        if (isDrawn)
+        {
+            var x = MainCamera.camera.transform.position.x;
+            var y = MainCamera.camera.transform.position.y;
+            var z = MainCamera.camera.transform.position.z;
+            gameObject.transform.position = new Vector3(x, y, z);
+            gameObject.transform.localPosition = new Vector3(0.5f,0,0.5f);
+            gameObject.transform.eulerAngles = -MainCamera.camera.transform.eulerAngles;
+        }
     }
 
     public override void OnDraw(Player p)
