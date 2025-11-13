@@ -14,6 +14,7 @@ public class AiohhPlayerTool : PlayerTool
     private double _counter = 0;
     private GameObject _leftChild;
     private GameObject _rightChild;
+    public GameObject model;
     public override void Awake()
     {
         socket = Socket.Camera;
@@ -61,11 +62,11 @@ public class AiohhPlayerTool : PlayerTool
 
     public void Update()
     {
-        gameObject.transform.localScale = Plugin.Aiohhf.PostScaleValue;
+        model.transform.localScale = Plugin.Aiohhf.PostScaleValue;
         var x = -20f;
         var y = gameObject.transform.localEulerAngles.y;
         var z = gameObject.transform.localEulerAngles.z;
-        gameObject.transform.localEulerAngles = new Vector3(x, y, z);
+        model.transform.localEulerAngles = new Vector3(x, y, z);
         _counter += Time.deltaTime;
         if (_counter >= 7f)
         {

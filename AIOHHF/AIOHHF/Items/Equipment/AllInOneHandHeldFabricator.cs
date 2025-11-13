@@ -51,38 +51,7 @@ public class AllInOneHandHeldFabricator
         PrefabRegisters[TreeType] = true;
         //Fabricator = Prefab.GetGadget<FabricatorGadget>();
         
-        var clone = new FabricatorTemplate(PrefabInfo, TreeType)
-        {
-            FabricatorModel = FabricatorTemplate.Model.Fabricator,
-            ModifyPrefab = prefab =>
-            { 
-                var fab = prefab.GetComponent<Fabricator>();
-                if (fab != null)
-                {
-                    var hhf = prefab.AddAndCopyComponent<AioHandHeldFabricator, Fabricator>();
-                    Object.Destroy(fab);
-                }
-                GameObject model = prefab.gameObject; 
-                model.transform.localScale = Vector3.one / 2f;
-                PostScaleValue = model.transform.localScale;
-                prefab.AddComponent<Pickupable>();
-                prefab.AddComponent<AiohhPlayerTool>();
-                prefab.AddComponent<Rigidbody>();
-                PrefabUtils.AddWorldForces(prefab, 5);
-                PrefabUtils.AddStorageContainer(prefab, "AIOHHFStorageContainer", "ALL IN ONE HAND HELD FABRICATOR", 2 ,2);
-                List<TechType> compatbats = new List<TechType>()
-                {
-                    TechType.Battery,
-                    TechType.PrecursorIonBattery
-                };
-                prefab.AddComponent<HandHeldRelay>().dontConnectToRelays = true;
-                PrefabUtils.AddEnergyMixin<HandHeldBatterySource>(prefab, 
-                    "'I don't really get why it exists, it just decreases the chance of a collision from like 9.399613e-55% to like 8.835272e-111%, both are very small numbers' - Lee23" +
-                    "(i forgot that i made my upgradeslib hand held fabricator the same storage root class id :sob:)", 
-                    TechType.Battery, compatbats);
-            }
-        };
-        Prefab.SetGameObject(clone);
+        Prefab.SetGameObject(GetGameObject);
         var ingredients = new List<Ingredient>()
         {
             new Ingredient(TechType.Titanium, 3),
@@ -142,5 +111,39 @@ public class AllInOneHandHeldFabricator
             
             if (!PrefabRegisters.ContainsKey(TreeType)) PrefabRegisters.Add(TreeType, false);
             if (!PrefabRegisters[TreeType]) Initialize();
+    }
+
+    public static IEnumerator GetGameObject(IOut<GameObject> gameObject)
+    {
+        CoroutineTask<GameObject> prefab = CraftData.GetPrefabForTechTypeAsync(TechType.Fabricator);
+        yield return prefab;
+        var model = prefab.GetResult();
+        var go = new GameObject("AIOHHF");
+        var instantiatedObject = Object.Instantiate(model, go.transform);
+        instantiatedObject.SetActive(false);
+        var fab = go.GetComponentInChildren<Fabricator>();
+        if (fab != null)
+        {
+            var hhf = go.AddComponent<AioHandHeldFabricator>().CopyComponent(fab);
+            Object.Destroy(fab);
+            hhf.craftTree = Plugin.Aiohhf.TreeType;
+        }
+        Plugin.Aiohhf.PostScaleValue = instantiatedObject.transform.localScale = Vector3.one / 2f;
+        go.AddComponent<Pickupable>();
+        go.AddComponent<AiohhPlayerTool>().model = instantiatedObject;
+        go.AddComponent<Rigidbody>();
+        PrefabUtils.AddWorldForces(go, 5);
+        PrefabUtils.AddStorageContainer(go, "AIOHHFStorageContainer", "ALL IN ONE HAND HELD FABRICATOR", 2 ,2);
+        List<TechType> compatbats = new List<TechType>()
+        {
+            TechType.Battery,
+            TechType.PrecursorIonBattery
+        };
+        go.AddComponent<HandHeldRelay>().dontConnectToRelays = true;
+        PrefabUtils.AddEnergyMixin<HandHeldBatterySource>(go, 
+            "'I don't really get why it exists, it just decreases the chance of a collision from like 9.399613e-55% to like 8.835272e-111%, both are very small numbers' - Lee23" +
+            "(i forgot that i made my upgradeslib hand held fabricator the same storage root class id :sob:)", 
+            TechType.Battery, compatbats);
+        gameObject.Set(go);
     }
 }
