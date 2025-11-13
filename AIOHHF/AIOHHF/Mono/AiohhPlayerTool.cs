@@ -25,10 +25,6 @@ public class AiohhPlayerTool : PlayerTool
         pickupable = gameObject.GetComponent<Pickupable>();
         battery.connectedRelay = relay;
         relay.AddInboundPower(battery);
-    }
-
-    private void Start()
-    {
         gameObject.transform.localPosition = new Vector3(0, -0.3f, 0.6f);
         gameObject.transform.localEulerAngles = new Vector3(0, 180, 0);
         _leftChild = new GameObject("left_hand_target");
