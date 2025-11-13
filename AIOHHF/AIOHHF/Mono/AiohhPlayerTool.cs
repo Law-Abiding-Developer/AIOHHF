@@ -1,3 +1,4 @@
+using System;
 using AIOHHF.Items.Equipment;
 using UnityEngine;
 
@@ -11,8 +12,11 @@ public class AiohhPlayerTool : PlayerTool
     public HandHeldBatterySource battery;
     public StorageContainer storageContainer;
     private double _counter = 0;
+    private GameObject _leftChild;
+    private GameObject _rightChild;
     public override void Awake()
     {
+        socket = Socket.Camera;
         fab = gameObject.GetComponent<AioHandHeldFabricator>();
         relay = gameObject.GetComponent<PowerRelay>();
         fab.powerRelay = relay;
@@ -21,10 +25,24 @@ public class AiohhPlayerTool : PlayerTool
         pickupable = gameObject.GetComponent<Pickupable>();
         battery.connectedRelay = relay;
         relay.AddInboundPower(battery);
-        ikAimLeftArm = true;
-        ikAimRightArm = true;
+    }
+
+    private void Start()
+    {
+        gameObject.transform.localPosition = new Vector3(0, -0.3f, 0.6f);
+        gameObject.transform.localEulerAngles = new Vector3(0, 180, 0);
+        _leftChild = new GameObject("left_hand_target");
+        _leftChild.transform.SetParent(gameObject.transform);
+        _rightChild = new GameObject("right_hand_target");
+        _rightChild.transform.SetParent(gameObject.transform);
+        var positionDifference = Vector3.zero;
+        _leftChild.transform.localPosition -=  positionDifference;
+        _rightChild.transform.localPosition += positionDifference;
+        leftHandIKTarget =  _leftChild.transform;
+        rightHandIKTarget =  _rightChild.transform;
         base.Awake();
     }
+
     public override bool OnRightHandDown()
     {
         fab.opened = true;
@@ -48,9 +66,12 @@ public class AiohhPlayerTool : PlayerTool
     public void Update()
     {
         gameObject.transform.localScale = Plugin.Aiohhf.PostScaleValue;
+        var x = -20f;
+        var y = gameObject.transform.localEulerAngles.y;
+        var z = gameObject.transform.localEulerAngles.z;
+        gameObject.transform.localEulerAngles = new Vector3(x, y, z);
         _counter += Time.deltaTime;
-        if (_counter >= 7f
-            && !uGUI.main.craftingMenu.isActiveAndEnabled)
+        if (_counter >= 7f)
         {
             fab.animator.SetBool(AnimatorHashID.open_fabricator, false);
             _counter = 0;
@@ -68,12 +89,7 @@ public class AiohhPlayerTool : PlayerTool
 
         if (isDrawn)
         {
-            var x = MainCamera.camera.transform.position.x;
-            var y = MainCamera.camera.transform.position.y;
-            var z = MainCamera.camera.transform.position.z;
-            gameObject.transform.position = new Vector3(x, y, z);
-            gameObject.transform.localPosition = new Vector3(0.5f,0,0.5f);
-            gameObject.transform.eulerAngles = -MainCamera.camera.transform.eulerAngles;
+            
         }
     }
 
