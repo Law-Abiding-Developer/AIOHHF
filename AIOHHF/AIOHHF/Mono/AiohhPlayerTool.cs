@@ -19,7 +19,7 @@ public class AiohhPlayerTool : PlayerTool
     {
         socket = Socket.Camera;
         fab = gameObject.GetComponent<AioHandHeldFabricator>();
-        relay = gameObject.GetComponent<PowerRelay>();
+        relay = gameObject.GetComponent<HandHeldRelay>();
         fab.powerRelay = relay;
         battery = gameObject.GetComponent<HandHeldBatterySource>();
         storageContainer = gameObject.GetComponent<StorageContainer>();

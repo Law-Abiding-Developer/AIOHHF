@@ -130,7 +130,6 @@ public class AllInOneHandHeldFabricator
         }
         Plugin.Aiohhf.PostScaleValue = instantiatedObject.transform.localScale = Vector3.one / 2f;
         go.AddComponent<Pickupable>();
-        go.AddComponent<AiohhPlayerTool>().model = instantiatedObject;
         go.AddComponent<Rigidbody>();
         PrefabUtils.AddWorldForces(go, 5);
         PrefabUtils.AddStorageContainer(go, "AIOHHFStorageContainer", "ALL IN ONE HAND HELD FABRICATOR", 2 ,2);
@@ -144,6 +143,7 @@ public class AllInOneHandHeldFabricator
             "'I don't really get why it exists, it just decreases the chance of a collision from like 9.399613e-55% to like 8.835272e-111%, both are very small numbers' - Lee23" +
             "(i forgot that i made my upgradeslib hand held fabricator the same storage root class id :sob:)", 
             TechType.Battery, compatbats);
+        go.AddComponent<AiohhPlayerTool>().model = instantiatedObject;
         gameObject.Set(go);
     }
 }
