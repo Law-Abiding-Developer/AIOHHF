@@ -12,7 +12,7 @@ public class UpgradesPrefabs
 {
     public CustomPrefab Prefab;
     public PrefabInfo PrefabInfo;
-    public CraftNode Tree;
+    public CraftNode Tree;//TODO: Rip Data_Box_chip model from CAB-21e70d026be83ede5b73dcbd893aac2d
     public UpgradesPrefabs(string classId, string name, string desc, CraftNode tree, RecipeData data, TechType techType, string lang = "English", bool unlAtStart = false)
     {
         PrefabInfo = Nautilus.Assets.PrefabInfo.WithTechType(classId, name, desc, lang, unlAtStart).WithIcon(SpriteManager.Get(techType));

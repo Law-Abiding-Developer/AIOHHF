@@ -11,13 +11,9 @@ public class AiohhPlayerTool : PlayerTool
     public PowerRelay relay;
     public HandHeldBatterySource battery;
     public StorageContainer storageContainer;
-    private double _counter = 0;
-    private GameObject _leftChild;
-    private GameObject _rightChild;
-    public GameObject model;
+    private double _counter;
     public override void Awake()
     {
-        socket = Socket.Camera;
         fab = gameObject.GetComponent<AioHandHeldFabricator>();
         relay = gameObject.GetComponent<HandHeldRelay>();
         fab.powerRelay = relay;
@@ -26,17 +22,6 @@ public class AiohhPlayerTool : PlayerTool
         pickupable = gameObject.GetComponent<Pickupable>();
         battery.connectedRelay = relay;
         relay.AddInboundPower(battery);
-        gameObject.transform.localPosition = new Vector3(0, -0.3f, 0.6f);
-        gameObject.transform.localEulerAngles = new Vector3(0, 180, 0);
-        _leftChild = new GameObject("left_hand_target");
-        _leftChild.transform.SetParent(gameObject.transform);
-        _rightChild = new GameObject("right_hand_target");
-        _rightChild.transform.SetParent(gameObject.transform);
-        var positionDifference = Vector3.zero;
-        _leftChild.transform.localPosition -=  positionDifference;
-        _rightChild.transform.localPosition += positionDifference;
-        leftHandIKTarget =  _leftChild.transform;
-        rightHandIKTarget =  _rightChild.transform;
         base.Awake();
     }
 
@@ -62,32 +47,23 @@ public class AiohhPlayerTool : PlayerTool
 
     public void Update()
     {
-        model.transform.localScale = Plugin.Aiohhf.PostScaleValue;
-        var x = -20f;
-        var y = gameObject.transform.localEulerAngles.y;
-        var z = gameObject.transform.localEulerAngles.z;
-        model.transform.localEulerAngles = new Vector3(x, y, z);
-        _counter += Time.deltaTime;
-        if (_counter >= 7f)
-        {
-            fab.animator.SetBool(AnimatorHashID.open_fabricator, false);
-            _counter = 0;
-        }
-        else if (uGUI.main.craftingMenu.isActiveAndEnabled)
-        {
-            fab.animator.SetBool(AnimatorHashID.open_fabricator, true);
-            _counter = 0;
-        }
+            gameObject.transform.localScale = Plugin.Aiohhf.PostScaleValue;
+            _counter += Time.deltaTime;
+            if (_counter >= 7f)
+            {
+                fab.animator.SetBool(AnimatorHashID.open_fabricator, false);
+                _counter = 0;
+            }
+            else if (uGUI.main.craftingMenu.isActiveAndEnabled)
+            {
+                fab.animator.SetBool(AnimatorHashID.open_fabricator, true);
+                _counter = 0;
+            }
 
-        if (fab.crafterLogic.inProgress && !fab.animator.GetBool(AnimatorHashID.open_fabricator))
-        {
-            fab.animator.SetBool(AnimatorHashID.open_fabricator, true);
-        }
-
-        if (isDrawn)
-        {
-            
-        }
+            if (fab.crafterLogic.inProgress && !fab.animator.GetBool(AnimatorHashID.open_fabricator))
+            {
+                fab.animator.SetBool(AnimatorHashID.open_fabricator, true);
+            }
     }
 
     public override void OnDraw(Player p)

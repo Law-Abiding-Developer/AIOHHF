@@ -79,7 +79,7 @@ public static class CraftTreeMethods
             AllInOneHandHeldFabricator.Upgrades.Add(new UpgradesPrefabs($"{language}Upgrade",
                 $"{language} Tree Upgrade", 
                 $"{language} Tree Upgrade for the All-In-One Hand Held Fabricator." + 
-                $" Gives the fabricator the related craftig tree.", craftTreeTab, 
+                $" Gives the fabricator the related crafting tree.", craftTreeTab, 
                 CraftDataHandler.GetRecipeData(TechType.Fabricator), TechType.Fabricator));
         }
         AllInOneHandHeldFabricator.PrefabRegisters[CraftTree.Type.Fabricator] = true;

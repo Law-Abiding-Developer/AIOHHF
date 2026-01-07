@@ -35,12 +35,13 @@ public class AllInOneHandHeldFabricator
     private CraftNode _nodeRoot;
     public static List<CraftNode> Trees = new();
     public static List<UpgradesPrefabs>  Upgrades =  new();
-    public void Initialize()
+    public AssetBundle Bundle;
+    public void Initialize(WaitScreenHandler.WaitScreenTask task)
     {
         PrefabInfo = PrefabInfo.WithTechType("AIOHHF", "All-In-One Hand Held Fabricator", 
                         "An All-In-One Hand Held Fabricator (AIOHHF). This fabricator has all other Fabricators! And is Hand Held(tm)!" +
                         "\nEnergy consumption is the same as a normal Fabricator")
-                    .WithIcon(SpriteManager.Get(TechType.Fabricator)).WithSizeInInventory(new Vector2int(2,2));
+                    .WithIcon(Bundle.LoadAsset<Sprite>("AIOHHF_Icon")).WithSizeInInventory(new Vector2int(2,2));
         Prefab = new CustomPrefab(PrefabInfo);
         Prefab.CreateFabricator(out TreeType)
             .Root.CraftTreeCreation = () =>
@@ -50,8 +51,46 @@ public class AllInOneHandHeldFabricator
         };
         PrefabRegisters[TreeType] = true;
         //Fabricator = Prefab.GetGadget<FabricatorGadget>();
-        
-        Prefab.SetGameObject(GetGameObject);
+
+        var clone = new FabricatorTemplate(PrefabInfo, TreeType)
+        {
+            FabricatorModel = FabricatorTemplate.Model.Fabricator,
+            ModifyPrefab = prefab =>
+            {
+                GameObject model = prefab.gameObject; 
+                model.transform.localScale = Vector3.one / 2f;
+                Plugin.Aiohhf.PostScaleValue = model.transform.localScale;
+                var fab = prefab.GetComponent<Fabricator>();
+                if (fab != null)
+                {
+                    var hhf = prefab.AddComponent<AioHandHeldFabricator>().CopyComponent(fab);
+                    Object.Destroy(fab);
+                    hhf.craftTree = Plugin.Aiohhf.TreeType;
+                }
+                prefab.AddComponent<Pickupable>();
+                prefab.AddComponent<Rigidbody>();
+                PrefabUtils.AddWorldForces(prefab, 5f);
+                PrefabUtils.AddStorageContainer(prefab, "AIOHHFStorageContainer", "ALL IN ONE HAND HELD FABRICATOR", 2 ,2);
+                List<TechType> compatBats = new List<TechType>()
+                {
+                    TechType.Battery,
+                    TechType.PrecursorIonBattery
+                };
+                prefab.AddComponent<HandHeldRelay>().dontConnectToRelays = true;
+                PrefabUtils.AddEnergyMixin<HandHeldBatterySource>(prefab, 
+                    "'I don't really get why it exists, it just decreases the chance of a collision from like 9.399613e-55% to like 8.835272e-111%, both are very small numbers' - Lee23" +
+                    "(i forgot that i made my upgradeslib hand held fabricator the same storage root class id 😭 - written by lad)", 
+                    TechType.Battery, compatBats);
+                prefab.AddComponent<AiohhPlayerTool>();
+                var renderer = prefab.GetComponentInChildren<SkinnedMeshRenderer>();
+                if (renderer == null) return; 
+                var texture = Bundle.LoadAsset<Texture>("AIOHHF_diffuse_and_spec");
+                if (texture == null) return;
+                renderer.material.mainTexture = texture;
+                renderer.material.SetTexture("_SpecTex", texture);
+            }
+        };
+        Prefab.SetGameObject(clone);
         var ingredients = new List<Ingredient>()
         {
             new Ingredient(TechType.Titanium, 3),
@@ -65,13 +104,20 @@ public class AllInOneHandHeldFabricator
             .WithFabricatorType(CraftTree.Type.Fabricator)
             .WithStepsToFabricatorTab("Personal","Tools")
             .WithCraftingTime(5f);
-        Prefab.SetUnlock(TechType.Peeper);
+
+        //var fragments = EnumHandler.AddEntry<TechType>("AIOHHFFragment").Value;
+        //var AIOHHFF1PI = new PrefabInfo("AIOHHFF1", "aiohhffragprefab1", fragments);
+        //var AIOHHFF1CP = new CustomPrefab(AIOHHFF1PI);
+        
+        //TODO: FINISH FRAGMENTS
+        Prefab.SetUnlock(TechType.Peeper);//TODO: Make fragments
         Prefab.SetEquipment(EquipmentType.Hand);
         Prefab.Register();
     }
 
     public void RegisterPrefab(WaitScreenHandler.WaitScreenTask task)
-    { 
+    {
+        task.Status = "";
         _nodeRoot = new CraftNode("Root");
             foreach (CraftTree.Type treeType in Enum.GetValues(typeof(CraftTree.Type)))
             {
@@ -110,7 +156,7 @@ public class AllInOneHandHeldFabricator
             }
             
             if (!PrefabRegisters.ContainsKey(TreeType)) PrefabRegisters.Add(TreeType, false);
-            if (!PrefabRegisters[TreeType]) Initialize();
+            if (!PrefabRegisters[TreeType]) Initialize(task);
     }
 
     public static IEnumerator GetGameObject(IOut<GameObject> gameObject)
@@ -133,7 +179,7 @@ public class AllInOneHandHeldFabricator
         go.AddComponent<Rigidbody>();
         PrefabUtils.AddWorldForces(go, 5);
         PrefabUtils.AddStorageContainer(go, "AIOHHFStorageContainer", "ALL IN ONE HAND HELD FABRICATOR", 2 ,2);
-        List<TechType> compatbats = new List<TechType>()
+        List<TechType> compatBats = new List<TechType>()
         {
             TechType.Battery,
             TechType.PrecursorIonBattery
@@ -141,9 +187,8 @@ public class AllInOneHandHeldFabricator
         go.AddComponent<HandHeldRelay>().dontConnectToRelays = true;
         PrefabUtils.AddEnergyMixin<HandHeldBatterySource>(go, 
             "'I don't really get why it exists, it just decreases the chance of a collision from like 9.399613e-55% to like 8.835272e-111%, both are very small numbers' - Lee23" +
-            "(i forgot that i made my upgradeslib hand held fabricator the same storage root class id :sob:)", 
-            TechType.Battery, compatbats);
-        go.AddComponent<AiohhPlayerTool>().model = instantiatedObject;
+            "(i forgot that i made my upgradeslib hand held fabricator the same storage root class id :sob: - written by lad)", 
+            TechType.Battery, compatBats);
         gameObject.Set(go);
     }
 }
