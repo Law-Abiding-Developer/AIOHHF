@@ -58,7 +58,7 @@ public class AllInOneHandHeldFabricator
             ModifyPrefab = prefab =>
             {
                 GameObject model = prefab.gameObject; 
-                model.transform.localScale = Vector3.one / 2f;
+                model.transform.localScale = Vector3.one / 3.25f;
                 Plugin.Aiohhf.PostScaleValue = model.transform.localScale;
                 var fab = prefab.GetComponent<Fabricator>();
                 if (fab != null)
