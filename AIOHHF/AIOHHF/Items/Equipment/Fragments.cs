@@ -91,6 +91,7 @@ public static class Fragments
                 MaterialUtils.ApplySNShaders(fragment);
                 return fragment;
             });
+            _fragmentCPs[i].CreateFragment(Plugin.Aiohhf.PrefabInfo.TechType, 3f);
             task.Status = $"Registering All In One Hand Held Fabricator...\nRegistering Fragments\n Fragment {i}: Wrapping up by registering...";
             yield return task;
             _fragmentCPs[i].Register();

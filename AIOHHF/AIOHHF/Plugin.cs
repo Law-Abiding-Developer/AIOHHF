@@ -6,6 +6,7 @@ using AIOHHF.Items.Equipment;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using Nautilus.Assets;
 using Nautilus.Handlers;
 using Nautilus.Utility;
 using UnityEngine;
@@ -20,8 +21,6 @@ public class Plugin : BaseUnityPlugin
 
     private static Assembly Assembly { get; } = Assembly.GetExecutingAssembly();
 
-    public static Config ConfigOptions;
-
     public static readonly AllInOneHandHeldFabricator Aiohhf = new();
 
     private void Awake()
@@ -34,8 +33,7 @@ public class Plugin : BaseUnityPlugin
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_NAME} is loaded!");
         WaitScreenHandler.RegisterLateAsyncLoadTask(PluginInfo.PLUGIN_NAME, Aiohhf.RegisterPrefab, "Loading All-In-One Hand Held Fabricator");
         WaitScreenHandler.RegisterAsyncLoadTask(PluginInfo.PLUGIN_NAME, LoadAssetBundle, "Loading FragmentsTechType for the All-In-One Hand Held Fabricator");
-        SaveUtils.RegisterOnQuitEvent(DeregisterPrefabs);
-        ConfigOptions = OptionsPanelHandler.RegisterModOptions<Config>();
+        Preinitialize();
     }
 
     public static IEnumerator LoadAssetBundle(WaitScreenHandler.WaitScreenTask task)
@@ -48,42 +46,15 @@ public class Plugin : BaseUnityPlugin
         }
         Aiohhf.Bundle = assetBundleRequest.assetBundle;
     }
-    
-    public static void CreateCraftTree(WaitScreenHandler.WaitScreenTask task)
-    {
-        int secondaryiterator = 0;
-        int thirditerator = 0;
-        foreach (CraftTree.Type treeType in Enum.GetValues(typeof(CraftTree.Type)))
-        {
-            Logger.LogDebug(treeType.ToString()+". we happy cause the enum exists now");
-            //if (treeType == CraftTree.Type.Constructor || treeType == CraftTree.Type.None ||
-                //treeType == CraftTree.Type.Unused1 || treeType == CraftTree.Type.Unused2 || treeType == CraftTree.Type.Rocket || treeType == Items.Equipment.AllInOneHandHeldFabricator.TreeType) continue;
-            task.Status =
-                $"Creating AIOHHF Tree\nTree: {CraftTree.GetTree(treeType).id}\nIteration: {secondaryiterator}";
-            Logger.LogDebug(task.Status);
-            //Items.Equipment.AIOHHF.AIOHHFFabricator.AddTabNode(CraftTree.GetTree(treeType).id + "AIOHHFTab",
-                //CraftTree.GetTree(treeType).id,
-                //SpriteManager.Get(TechType.Fabricator));
-            
-            foreach (CraftNode node in CraftTree.GetTree(treeType).nodes)
-            {
-                //task.Status = $"Creating AIOHHF Tree\nCurrent Tree: {CraftTree.GetTree(Items.Equipment.AllInOneHandHeldFabricator.TreeType)}\nAdding Tree: {CraftTree.GetTree(treeType).id}\nIteration: {secondaryiterator}\nNode Iteration: {thirditerator}\nNode Added: {node.id}";
-                            Logger.LogDebug(task.Status);
-                //CraftTree.GetTree(Items.Equipment.AllInOneHandHeldFabricator.TreeType).nodes.AddNode(node);
-                thirditerator++;
-            }
-            secondaryiterator++;
-            thirditerator++;
-        }
-        /*task.Status = "Creating AIOHHF Tree";
-        foreach (var tech in CraftTree.craftableTech)
-        {
-            Items.Equipment.AIOHHF.AIOHHFFabricator.AddCraftNode(tech);
-        }*/
-    }
 
-    public static void DeregisterPrefabs()
+    public static void Preinitialize()
     {
-        //Items.Equipment.AllInOneHandHeldFabricator.Prefab.Unregister();
+        Aiohhf.PrefabInfo = PrefabInfo.WithTechType("AIOHHF", "All-In-One Hand Held Fabricator", 
+                "An All-In-One Hand Held Fabricator (AIOHHF). This fabricator has all other Fabricators! And is Hand Held(tm)!" +
+                "\nUnfortunately, it holds no data of the Fabricator, you'll have to give it data. " +
+                "Alterra is not responsible for data loss due to damage, lost, or destruction of this fabricator. " +
+                "Energy consumption is the same as a normal Fabricator", "English", true)
+            .WithIcon(Aiohhf.Bundle.LoadAsset<Sprite>("AIOHHF_Icon")).WithSizeInInventory(new Vector2int(2,2));
+        Aiohhf.Prefab = new CustomPrefab(Aiohhf.PrefabInfo);
     }
 }

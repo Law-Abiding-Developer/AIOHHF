@@ -40,18 +40,8 @@ public class AllInOneHandHeldFabricator
     {
         if (Registered) yield break;
         Registered = true;
-        task.Status = "Registering All In One Hand Held Fabricator...\nGiving PrefabInfo and loading icon";
-        yield return task;
-        PrefabInfo = PrefabInfo.WithTechType("AIOHHF", "All-In-One Hand Held Fabricator", 
-                        "An All-In-One Hand Held Fabricator (AIOHHF). This fabricator has all other Fabricators! And is Hand Held(tm)!" +
-                        "\nUnfortunately, it holds no data of the Fabricator, you'll have to give it data. " +
-                        "Alterra is not responsible for data loss due to damage, lost, or destruction of this fabricator. " +
-                        "Energy consumption is the same as a normal Fabricator", "English", true)
-                    .WithIcon(Bundle.LoadAsset<Sprite>("AIOHHF_Icon")).WithSizeInInventory(new Vector2int(2,2));
-        task.Status = "Registering All In One Hand Held Fabricator...\nCreating CustomPrefab";
-        yield return task;
-        Prefab = new CustomPrefab(PrefabInfo);
-        task.Status = "Registering All In One Hand Held Fabricator...\nCreating Fabricator with registered CraftTree";
+        task.Status = "Registering All In One Hand Held Fabricator...\nCreating Fabricator " +
+                      "with registered CraftTree";
         yield return task;
         Prefab.CreateFabricator(out TreeType)
             .Root.CraftTreeCreation = () =>
@@ -131,7 +121,7 @@ public class AllInOneHandHeldFabricator
 
         
         task.Status = "Registering All In One Hand Held Fabricator...\nRegistering Fragments";
-        yield return task;
+        yield return task; 
         yield return Fragments.Initialize(task);
         task.Status = "Registering All In One Hand Held Fabricator...\nMaking scanning required for unlock";
         yield return task;

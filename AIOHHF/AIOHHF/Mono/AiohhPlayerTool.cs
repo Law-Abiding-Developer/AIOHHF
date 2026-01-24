@@ -12,7 +12,6 @@ public class AiohhPlayerTool : PlayerTool
     public HandHeldBatterySource battery;
     public StorageContainer storageContainer;
     private double _counter;
-    private GameObject _hands;
     public Transform leftHand;
     public Transform rightHand;
     public override string animToolName => "seaglide";
