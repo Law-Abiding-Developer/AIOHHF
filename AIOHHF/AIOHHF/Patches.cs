@@ -17,6 +17,8 @@ public class uGUI_CraftingMenuPatches
     [HarmonyDebug]
     public static void Filter_Patches(uGUI_CraftingMenu __instance, string id, ref bool __result)
     {
+        //Check if is my fabricator, if so, cast.
+        if (__instance._client is not AioHandHeldFabricator instance) return;
         //For checking
         bool isSuperTab = false;
         //Search through each Super Tab to see if the ID matches the ID of the Super Tab
@@ -25,8 +27,6 @@ public class uGUI_CraftingMenuPatches
             //If true, set isSuperTab to True
             if (item.id.Equals(id)) isSuperTab = true;
         }
-        //Check if is my fabricator, if so, cast.
-        if (__instance._client is not AioHandHeldFabricator instance) return;
         //Set the default case to false so long as is it a Super Tab so
         //that it filters everything but what the foreach loop finds
         if (isSuperTab) __result = false;
@@ -60,9 +60,15 @@ public class uGUI_CraftingMenuPatches
 
     [HarmonyPatch(nameof(uGUI_CraftingMenu.Open))]
     [HarmonyPrefix]
-    public static void Open_Patches(uGUI_CraftingMenu __instance, ITreeActionReceiver receiver)
+    public static bool Open_Patches(uGUI_CraftingMenu __instance, ITreeActionReceiver receiver)
     {
+        if (receiver is AioHandHeldFabricator fab && fab.gameObject.GetComponent<StorageContainer>().IsEmpty())
+        {
+            ErrorMessage.AddWarning("Lacking data to form a craft tree!");
+            return false;
+        }
         __instance._client = receiver;
+        return true;
     }
 }
 

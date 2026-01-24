@@ -32,15 +32,10 @@ public class Plugin : BaseUnityPlugin
         // register harmony patches, if there are any
         Harmony.CreateAndPatchAll(Assembly, $"{PluginInfo.PLUGIN_GUID}");
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_NAME} is loaded!");
-        WaitScreenHandler.RegisterLateLoadTask(PluginInfo.PLUGIN_NAME, CreatePrefabInstance, "Loading All-In-One Hand Held Fabricator");
-        WaitScreenHandler.RegisterAsyncLoadTask(PluginInfo.PLUGIN_NAME, LoadAssetBundle, "Loading Fragments for the All-In-One Hand Held Fabricator");
+        WaitScreenHandler.RegisterLateAsyncLoadTask(PluginInfo.PLUGIN_NAME, Aiohhf.RegisterPrefab, "Loading All-In-One Hand Held Fabricator");
+        WaitScreenHandler.RegisterAsyncLoadTask(PluginInfo.PLUGIN_NAME, LoadAssetBundle, "Loading FragmentsTechType for the All-In-One Hand Held Fabricator");
         SaveUtils.RegisterOnQuitEvent(DeregisterPrefabs);
         ConfigOptions = OptionsPanelHandler.RegisterModOptions<Config>();
-    }
-
-    public static void CreatePrefabInstance(WaitScreenHandler.WaitScreenTask task)
-    {
-        Aiohhf.RegisterPrefab(task);
     }
 
     public static IEnumerator LoadAssetBundle(WaitScreenHandler.WaitScreenTask task)

@@ -25,7 +25,6 @@ public class AllInOneHandHeldFabricator
 {
     public static Dictionary<CraftTree.Type, TechType> CustomFabricators = new();
     //public static Dictionary<CraftNode, CraftTree.Type> Fabricators = new();
-    public static Dictionary<CraftTree.Type, bool> PrefabRegisters = new();
     public static Dictionary<TechType, CraftNode> Nodes = new();
     public PrefabInfo PrefabInfo;
     public CustomPrefab Prefab;
@@ -36,29 +35,43 @@ public class AllInOneHandHeldFabricator
     public static List<CraftNode> Trees = new();
     public static List<UpgradesPrefabs>  Upgrades =  new();
     public AssetBundle Bundle;
-    public void Initialize(WaitScreenHandler.WaitScreenTask task)
+    internal static bool Registered = false;
+    public IEnumerator Initialize(WaitScreenHandler.WaitScreenTask task)
     {
+        if (Registered) yield break;
+        Registered = true;
+        task.Status = "Registering All In One Hand Held Fabricator...\nGiving PrefabInfo and loading icon";
+        yield return task;
         PrefabInfo = PrefabInfo.WithTechType("AIOHHF", "All-In-One Hand Held Fabricator", 
                         "An All-In-One Hand Held Fabricator (AIOHHF). This fabricator has all other Fabricators! And is Hand Held(tm)!" +
-                        "\nEnergy consumption is the same as a normal Fabricator")
+                        "\nUnfortunately, it holds no data of the Fabricator, you'll have to give it data. " +
+                        "Alterra is not responsible for data loss due to damage, lost, or destruction of this fabricator. " +
+                        "Energy consumption is the same as a normal Fabricator", "English", true)
                     .WithIcon(Bundle.LoadAsset<Sprite>("AIOHHF_Icon")).WithSizeInInventory(new Vector2int(2,2));
+        task.Status = "Registering All In One Hand Held Fabricator...\nCreating CustomPrefab";
+        yield return task;
         Prefab = new CustomPrefab(PrefabInfo);
+        task.Status = "Registering All In One Hand Held Fabricator...\nCreating Fabricator with registered CraftTree";
+        yield return task;
         Prefab.CreateFabricator(out TreeType)
             .Root.CraftTreeCreation = () =>
         {
             const string schemeId = "AIOHHFCraftTree";
             return new CraftTree(schemeId, _nodeRoot);
         };
-        PrefabRegisters[TreeType] = true;
+        task.Status = "Registering All In One Hand Held Fabricator...\nEnsuring this doesn't happen twice";
+        yield return task;
         //Fabricator = Prefab.GetGadget<FabricatorGadget>();
 
+        task.Status = "Registering All In One Hand Held Fabricator...\nCloning Fabricator Model";
+        yield return task;
         var clone = new FabricatorTemplate(PrefabInfo, TreeType)
         {
             FabricatorModel = FabricatorTemplate.Model.Fabricator,
             ModifyPrefab = prefab =>
             {
                 GameObject model = prefab.gameObject; 
-                model.transform.localScale = Vector3.one / 3.25f;
+                model.transform.localScale = Vector3.one / 2f;
                 Plugin.Aiohhf.PostScaleValue = model.transform.localScale;
                 var fab = prefab.GetComponent<Fabricator>();
                 if (fab != null)
@@ -88,9 +101,20 @@ public class AllInOneHandHeldFabricator
                 if (texture == null) return;
                 renderer.material.mainTexture = texture;
                 renderer.material.SetTexture("_SpecTex", texture);
+                var actualModel = prefab.FindChild("submarine_fabricator_01");
+                var fpModel = prefab.AddComponent<FPModel>();
+                fpModel.viewModel = actualModel;
+                var copy = Object.Instantiate(actualModel, prefab.transform);
+                fpModel.propModel = copy;
+                actualModel.transform.localEulerAngles = new Vector3(0,180,0);
+                actualModel.transform.localPosition = new Vector3(0, 0, 0.15f);
             }
         };
+        task.Status = "Registering All In One Hand Held Fabricator...\nSetting CustomPrefab's GameObject to the cloned fabricator";
+        yield return task;
         Prefab.SetGameObject(clone);
+        task.Status = "Registering All In One Hand Held Fabricator...\nAssigning Recipe";
+        yield return task;
         var ingredients = new List<Ingredient>()
         {
             new Ingredient(TechType.Titanium, 3),
@@ -105,19 +129,30 @@ public class AllInOneHandHeldFabricator
             .WithStepsToFabricatorTab("Personal","Tools")
             .WithCraftingTime(5f);
 
-        //var fragments = EnumHandler.AddEntry<TechType>("AIOHHFFragment").Value;
-        //var AIOHHFF1PI = new PrefabInfo("AIOHHFF1", "aiohhffragprefab1", fragments);
-        //var AIOHHFF1CP = new CustomPrefab(AIOHHFF1PI);
         
-        //TODO: FINISH FRAGMENTS
-        Prefab.SetUnlock(TechType.Peeper);//TODO: Make fragments
+        task.Status = "Registering All In One Hand Held Fabricator...\nRegistering Fragments";
+        yield return task;
+        yield return Fragments.Initialize(task);
+        task.Status = "Registering All In One Hand Held Fabricator...\nMaking scanning required for unlock";
+        yield return task;
+        PDAHandler.AddCustomScannerEntry(Fragments.FragmentsTechType, 
+            PrefabInfo.TechType, true, 3);
+        task.Status = "Registering All In One Hand Held Fabricator...\nSetting Equipment Type";
+        yield return task;
         Prefab.SetEquipment(EquipmentType.Hand);
+        task.Status = "Registering All In One Hand Held Fabricator...\nWrapping up by registering...";
+        yield return task;
         Prefab.Register();
+        task.Status = "Registering All In One Hand Held Fabricator...\nDone!";
+        yield return task;
     }
 
-    public void RegisterPrefab(WaitScreenHandler.WaitScreenTask task)
+    public IEnumerator RegisterPrefab(WaitScreenHandler.WaitScreenTask task)
     {
-        task.Status = "";
+        task.Status = "Registering AIOHHF Craft Tree";
+        if (Registered)
+        {
+            task.Status = "Already registered"; yield break;}
         _nodeRoot = new CraftNode("Root");
             foreach (CraftTree.Type treeType in Enum.GetValues(typeof(CraftTree.Type)))
             {
@@ -126,17 +161,17 @@ public class AllInOneHandHeldFabricator
                     treeType == CraftTree.Type.Unused1 || treeType == CraftTree.Type.Unused2 ||
                     treeType == CraftTree.Type.Rocket || treeType == TreeType
                     || treeType == CraftTree.Type.Centrifuge) continue;
-
-                //if its not defined, add it
-                if (!PrefabRegisters.ContainsKey(treeType)) PrefabRegisters.Add(treeType, false);
+                
                 //techtype to set with a scope outside of each if statement
                 TechType techType;
                 //get the craft tree's techtype
                 if (!TechTypeExtensions.FromString(treeType.ToString(), out techType, false)
                     && treeType != CraftTree.Type.MapRoom && treeType != CraftTree.Type.SeamothUpgrades) continue;
                 //get the techtypes for outliers because there is no techtype of "MapRoom" or "SeamothUpgrades"
-                if (treeType == CraftTree.Type.MapRoom) techType = TechType.BaseMapRoom;
-                if (treeType == CraftTree.Type.SeamothUpgrades) techType = TechType.BaseUpgradeConsole;
+                if (techType == TechType.None)
+                    techType = treeType == CraftTree.Type.SeamothUpgrades
+                        ? TechType.BaseUpgradeConsole
+                        : TechType.BaseMapRoom;
                 //is it a custom craft tree?
                 if (EnumHandler.ModdedEnumExists<CraftTree.Type>(treeType.ToString()))
                     //add it if so
@@ -144,51 +179,26 @@ public class AllInOneHandHeldFabricator
                 //do nothing with the vanilla ones since they are mapped manually
             }
 
+            task.Status = "Registering Fabricator Data chip";
             _nodeRoot.AddNode(CraftTreeMethods.RegisterFabricatorUpgrade());
+            task.Status = "Registering Modification Station Data chip";
             _nodeRoot.AddNode(CraftTreeMethods.RegisterWorkbenchUpgrade());
+            task.Status = "Registering Cyclops Fabricator Data chip";
             _nodeRoot.AddNode(CraftTreeMethods.RegisterCyclopsFabricatorUpgrade());
+            task.Status = "Registering Scanner Room Fabricator Data chip";
             _nodeRoot.AddNode(CraftTreeMethods.RegisterScannerRoomUpgrade());
+            task.Status = "Registering Vehicle Upgrade Console Fabricator Data chip";
             _nodeRoot.AddNode(CraftTreeMethods.RegisterVehicleUpgradeConsoleUpgrade());
+            task.Status = "Registering Prototype Fabricator Data chip (if Prototype is loaded)";
             _nodeRoot.AddNode(CraftTreeMethods.RegisterPrecursorFabricatorUpgrade());
+            task.Status = "Registering all Custom Fabricator Data chips";
             foreach (CraftNode node in CraftTreeMethods.RegisterCustomFabricatorUpgrades())
             {
+                task.Status = $"Registering all Custom Fabricator Data chips\nRegistered {node.techType0}!";
                 _nodeRoot.AddNode(node);
             }
-            
-            if (!PrefabRegisters.ContainsKey(TreeType)) PrefabRegisters.Add(TreeType, false);
-            if (!PrefabRegisters[TreeType]) Initialize(task);
-    }
 
-    public static IEnumerator GetGameObject(IOut<GameObject> gameObject)
-    {
-        CoroutineTask<GameObject> prefab = CraftData.GetPrefabForTechTypeAsync(TechType.Fabricator);
-        yield return prefab;
-        var model = prefab.GetResult();
-        var go = new GameObject("AIOHHF");
-        var instantiatedObject = Object.Instantiate(model, go.transform);
-        instantiatedObject.SetActive(false);
-        var fab = go.GetComponentInChildren<Fabricator>();
-        if (fab != null)
-        {
-            var hhf = go.AddComponent<AioHandHeldFabricator>().CopyComponent(fab);
-            Object.Destroy(fab);
-            hhf.craftTree = Plugin.Aiohhf.TreeType;
-        }
-        Plugin.Aiohhf.PostScaleValue = instantiatedObject.transform.localScale = Vector3.one / 2f;
-        go.AddComponent<Pickupable>();
-        go.AddComponent<Rigidbody>();
-        PrefabUtils.AddWorldForces(go, 5);
-        PrefabUtils.AddStorageContainer(go, "AIOHHFStorageContainer", "ALL IN ONE HAND HELD FABRICATOR", 2 ,2);
-        List<TechType> compatBats = new List<TechType>()
-        {
-            TechType.Battery,
-            TechType.PrecursorIonBattery
-        };
-        go.AddComponent<HandHeldRelay>().dontConnectToRelays = true;
-        PrefabUtils.AddEnergyMixin<HandHeldBatterySource>(go, 
-            "'I don't really get why it exists, it just decreases the chance of a collision from like 9.399613e-55% to like 8.835272e-111%, both are very small numbers' - Lee23" +
-            "(i forgot that i made my upgradeslib hand held fabricator the same storage root class id :sob: - written by lad)", 
-            TechType.Battery, compatBats);
-        gameObject.Set(go);
+            task.Status = "Registering All In One Hand Held Fabricator...";
+            yield return Initialize(task);
     }
 }
