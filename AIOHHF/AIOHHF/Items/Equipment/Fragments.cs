@@ -19,11 +19,7 @@ public static class Fragments
     public static TechType FragmentsTechType;
     public static IEnumerator Initialize(WaitScreenHandler.WaitScreenTask task)
     {
-        task.Status = "Registering All In One Hand Held Fabricator...\nRegistering Fragments\nCreating TechType";
-        yield return task;
         var fragments = FragmentsTechType = EnumHandler.AddEntry<TechType>("AIOHHFFragment").Value;
-        task.Status = "Registering All In One Hand Held Fabricator...\nRegistering Fragments\nCreating List of biomes that the fragments spawn in";
-        yield return task;
         var biomesToSpawnIn = new List<LootDistributionData.BiomeData>()
         {
             new LootDistributionData.BiomeData()
@@ -47,8 +43,6 @@ public static class Fragments
                     || item.ToString().Contains("Ship")
                     || item.ToString().Contains("Aurora")))
             {
-                task.Status = "Registering All In One Hand Held Fabricator...\nRegistering Fragments\nCreating List of biomes that the fragments spawn in\nBiome: " + item.ToString();
-                yield return task;
                 biomesToSpawnIn.Add(new LootDistributionData.BiomeData()
                 {
                     biome = item,
@@ -57,29 +51,19 @@ public static class Fragments
                 });
             }
         }
+        var WEI = new WorldEntityInfo()
+                    {
+                        techType = fragments,
+                        localScale = Vector3.one,
+                        slotType = EntitySlot.Type.Small,
+                        cellLevel = LargeWorldEntity.CellLevel.Near,
+                        prefabZUp = false
+                    };
         for (var i = 0; i < 3; i++)
         {
-            task.Status = $"Registering All In One Hand Held Fabricator...\nRegistering Fragments\n Fragment {i}: Creating PrefabInfo";
-            yield return task;
             _fragmentPIs[i] = new PrefabInfo("AIOHHFF" + i, "aiohhffragprefab" + i, fragments);
-            task.Status = $"Registering All In One Hand Held Fabricator...\nRegistering Fragments\n Fragment {i}: Creating CustomPrefab";
-            yield return task;
             _fragmentCPs[i] = new CustomPrefab(_fragmentPIs[i]);
-            task.Status = $"Registering All In One Hand Held Fabricator...\nRegistering Fragments\n Fragment {i}: Creating WorldEntityInfo";
-            yield return task;
-            var WEI = new WorldEntityInfo()
-            {
-                techType = fragments,
-                localScale = Vector3.one*100,
-                slotType = EntitySlot.Type.Small,
-                cellLevel = LargeWorldEntity.CellLevel.Near,
-                prefabZUp = false
-            };
-            task.Status = $"Registering All In One Hand Held Fabricator...\nRegistering Fragments\n Fragment {i}: Setting spawns";
-            yield return task;
             _fragmentCPs[i].SetSpawns(WEI, biomesToSpawnIn.ToArray());
-            task.Status = $"Registering All In One Hand Held Fabricator...\nRegistering Fragments\n Fragment {i}: Setting GameObject";
-            yield return task;
             var i1 = i;
             _fragmentCPs[i].SetGameObject(() =>
             {
@@ -89,16 +73,17 @@ public static class Fragments
                 PrefabUtils.AddBasicComponents(fragment, _fragmentPIs[i1].ClassID, _fragmentPIs[i1].TechType,
                     LargeWorldEntity.CellLevel.Global);
                 MaterialUtils.ApplySNShaders(fragment);
+                var rb = fragment.AddComponent<Rigidbody>();
+                rb.mass = 5f;
+                rb.useGravity = false;
+                rb.isKinematic = true;
+                var wf =  fragment.GetComponent<WorldForces>();
+                wf.useRigidbody = rb;
                 return fragment;
             });
             _fragmentCPs[i].CreateFragment(Plugin.Aiohhf.PrefabInfo.TechType, 3f);
-            task.Status = $"Registering All In One Hand Held Fabricator...\nRegistering Fragments\n Fragment {i}: Wrapping up by registering...";
-            yield return task;
             _fragmentCPs[i].Register();
-            task.Status = $"Registering All In One Hand Held Fabricator...\nRegistering Fragments\n Fragment {i}: Done!";
-            yield return null;
         }
-        task.Status = "Registering All In One Hand Held Fabricator...\nRegistering Fragments: Done!";
         yield return null;
     }
 }

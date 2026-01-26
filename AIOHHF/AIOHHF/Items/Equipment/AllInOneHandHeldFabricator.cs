@@ -40,21 +40,14 @@ public class AllInOneHandHeldFabricator
     {
         if (Registered) yield break;
         Registered = true;
-        task.Status = "Registering All In One Hand Held Fabricator...\nCreating Fabricator " +
-                      "with registered CraftTree";
-        yield return task;
         Prefab.CreateFabricator(out TreeType)
             .Root.CraftTreeCreation = () =>
         {
             const string schemeId = "AIOHHFCraftTree";
             return new CraftTree(schemeId, _nodeRoot);
         };
-        task.Status = "Registering All In One Hand Held Fabricator...\nEnsuring this doesn't happen twice";
-        yield return task;
         //Fabricator = Prefab.GetGadget<FabricatorGadget>();
-
-        task.Status = "Registering All In One Hand Held Fabricator...\nCloning Fabricator Model";
-        yield return task;
+        
         var clone = new FabricatorTemplate(PrefabInfo, TreeType)
         {
             FabricatorModel = FabricatorTemplate.Model.Fabricator,
@@ -100,11 +93,7 @@ public class AllInOneHandHeldFabricator
                 actualModel.transform.localPosition = new Vector3(0, 0, 0.15f);
             }
         };
-        task.Status = "Registering All In One Hand Held Fabricator...\nSetting CustomPrefab's GameObject to the cloned fabricator";
-        yield return task;
         Prefab.SetGameObject(clone);
-        task.Status = "Registering All In One Hand Held Fabricator...\nAssigning Recipe";
-        yield return task;
         var ingredients = new List<Ingredient>()
         {
             new Ingredient(TechType.Titanium, 3),
@@ -120,29 +109,17 @@ public class AllInOneHandHeldFabricator
             .WithCraftingTime(5f);
 
         
-        task.Status = "Registering All In One Hand Held Fabricator...\nRegistering Fragments";
-        yield return task; 
         yield return Fragments.Initialize(task);
-        task.Status = "Registering All In One Hand Held Fabricator...\nMaking scanning required for unlock";
-        yield return task;
         PDAHandler.AddCustomScannerEntry(Fragments.FragmentsTechType, 
             PrefabInfo.TechType, true, 3);
-        task.Status = "Registering All In One Hand Held Fabricator...\nSetting Equipment Type";
-        yield return task;
         Prefab.SetEquipment(EquipmentType.Hand);
-        task.Status = "Registering All In One Hand Held Fabricator...\nWrapping up by registering...";
-        yield return task;
         Prefab.Register();
-        task.Status = "Registering All In One Hand Held Fabricator...\nDone!";
-        yield return task;
     }
 
     public IEnumerator RegisterPrefab(WaitScreenHandler.WaitScreenTask task)
     {
-        task.Status = "Registering AIOHHF Craft Tree";
         if (Registered)
-        {
-            task.Status = "Already registered"; yield break;}
+        { yield break;}
         _nodeRoot = new CraftNode("Root");
             foreach (CraftTree.Type treeType in Enum.GetValues(typeof(CraftTree.Type)))
             {
@@ -168,27 +145,17 @@ public class AllInOneHandHeldFabricator
                     CustomFabricators.Add(treeType, techType);
                 //do nothing with the vanilla ones since they are mapped manually
             }
-
-            task.Status = "Registering Fabricator Data chip";
+            
             _nodeRoot.AddNode(CraftTreeMethods.RegisterFabricatorUpgrade());
-            task.Status = "Registering Modification Station Data chip";
             _nodeRoot.AddNode(CraftTreeMethods.RegisterWorkbenchUpgrade());
-            task.Status = "Registering Cyclops Fabricator Data chip";
             _nodeRoot.AddNode(CraftTreeMethods.RegisterCyclopsFabricatorUpgrade());
-            task.Status = "Registering Scanner Room Fabricator Data chip";
             _nodeRoot.AddNode(CraftTreeMethods.RegisterScannerRoomUpgrade());
-            task.Status = "Registering Vehicle Upgrade Console Fabricator Data chip";
             _nodeRoot.AddNode(CraftTreeMethods.RegisterVehicleUpgradeConsoleUpgrade());
-            task.Status = "Registering Prototype Fabricator Data chip (if Prototype is loaded)";
             _nodeRoot.AddNode(CraftTreeMethods.RegisterPrecursorFabricatorUpgrade());
-            task.Status = "Registering all Custom Fabricator Data chips";
             foreach (CraftNode node in CraftTreeMethods.RegisterCustomFabricatorUpgrades())
             {
-                task.Status = $"Registering all Custom Fabricator Data chips\nRegistered {node.techType0}!";
                 _nodeRoot.AddNode(node);
             }
-
-            task.Status = "Registering All In One Hand Held Fabricator...";
             yield return Initialize(task);
     }
 }
