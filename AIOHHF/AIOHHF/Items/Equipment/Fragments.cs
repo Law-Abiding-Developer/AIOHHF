@@ -51,17 +51,19 @@ public static class Fragments
                 });
             }
         }
-        var WEI = new WorldEntityInfo()
-                    {
-                        techType = fragments,
-                        localScale = Vector3.one,
-                        slotType = EntitySlot.Type.Small,
-                        cellLevel = LargeWorldEntity.CellLevel.Near,
-                        prefabZUp = false
-                    };
+        
         for (var i = 0; i < 3; i++)
         {
             _fragmentPIs[i] = new PrefabInfo("AIOHHFF" + i, "aiohhffragprefab" + i, fragments);
+            var WEI = new WorldEntityInfo()
+                                            {
+                                                techType = fragments,
+                                                classId = _fragmentPIs[i].ClassID,
+                                                localScale = Vector3.one,
+                                                slotType = EntitySlot.Type.Small,
+                                                cellLevel = LargeWorldEntity.CellLevel.Global,
+                                                prefabZUp = false
+                                            };
             _fragmentCPs[i] = new CustomPrefab(_fragmentPIs[i]);
             _fragmentCPs[i].SetSpawns(WEI, biomesToSpawnIn.ToArray());
             var i1 = i;
