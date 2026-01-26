@@ -25,6 +25,14 @@ public class AiohhPlayerTool : PlayerTool
         battery = gameObject.GetComponent<HandHeldBatterySource>();
         storageContainer = gameObject.GetComponent<StorageContainer>();
         pickupable = gameObject.GetComponent<Pickupable>();
+        pickupable.droppedEvent.AddHandler(pickupable, parms =>
+        {
+            parms.gameObject.FindChild("collision").SetActive(true);
+        });
+        pickupable.pickedUpEvent.AddHandler(pickupable, parms =>
+        {
+            parms.gameObject.FindChild("collision").SetActive(false);
+        });
         battery.connectedRelay = relay;
         relay.AddInboundPower(battery);
         /*_hands = Plugin.Aiohhf.Bundle.LoadAsset<GameObject>("Hands");
@@ -88,7 +96,6 @@ public class AiohhPlayerTool : PlayerTool
         base.OnDraw(p);
         if (fab.animator == null) return;
         fab.animator.SetBool(AnimatorHashID.open_fabricator, true);
-        gameObject.FindChild("collision").SetActive(false);
         if (leftHand != null && rightHand != null)
         {
             //leftHandIKTarget = leftHand;

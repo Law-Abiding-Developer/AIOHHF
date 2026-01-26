@@ -79,7 +79,8 @@ public class GhostCrafterPatches
     [HarmonyPrefix]
     public static bool OnHandHover_Patches(GhostCrafter __instance, GUIHand hand)
     {
-        if (!__instance.gameObject.TryGetComponent<AiohhPlayerTool>(out var pt)) return true;
+        if (!__instance.gameObject.TryGetComponent<AiohhPlayerTool>(out var pt)) 
+            return true;
         pt.pickupable.OnHandHover(hand);
         return false;
     }
@@ -88,7 +89,9 @@ public class GhostCrafterPatches
     [HarmonyPrefix]
     public static bool OnHandClick_Patches(GhostCrafter __instance, GUIHand hand)
     {
-        if (!__instance.gameObject.TryGetComponent<AiohhPlayerTool>(out var pt)) return true;
+        if (!__instance.gameObject
+                .TryGetComponent<AiohhPlayerTool>(out var pt)) 
+            return true;
         pt.pickupable.OnHandClick(hand);
         return false;
     }
